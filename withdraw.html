@@ -1,0 +1,120 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="loader.css">
+<link rel="stylesheet" href="alert.css">
+<link rel="stylesheet" href="mob-nav.css">
+<style>
+  .title{
+    margin: 70px 5px 10px 5px;
+  }
+</style>
+<div id="loader"><div class="loader"></div></div>
+<div id="header"><span>Payout</span><span id="headerCoins"></span></div>
+<div class="title"><span>Get Redeem Code!</span></div>
+<div id="withdraw"></div>
+<div id="alertBox">
+  <div>
+    <p id="alertMsg"></p>
+    <div id="codeBox" style="display:none">
+      <p id="codeText"></p>
+      <button id="copyBtn">Copy</button>
+    </div>
+    <button id="yesBtn" style="display:none">Yes</button>
+    <button id="noBtn" style="display:none">Not</button>
+    <button id="closeBtn" style="display:none">Close</button>
+  </div>
+</div>
+<div id="mob-nav"></div>
+<div class="space"></div>
+<script>
+const DEPLOY_URL="https://script.google.com/macros/s/AKfycbyi4EXl3afEkzqW0a0wtYdkFloaXVVnX5lUutESVTtp5zuzLG0B0Ld1gqR6Db8uRckXgg/exec";
+const uid=localStorage.getItem("g_local");
+let userCoins=0,selectedCoins=0,selectedId="",selectedRupee=0,finalCode="";
+Promise.all([
+  fetch(DEPLOY_URL+"?type=user&uid="+uid).then(r=>r.json()),
+  fetch(DEPLOY_URL+"?type=withdraw").then(r=>r.json())
+]).then(([userData,withdrawData])=>{
+  userCoins=parseInt(userData.coins);
+  document.getElementById("headerCoins").innerHTML=`<img src="https://www.svgrepo.com/show/279443/coins-money.svg"> <span>${userCoins}</span>`;
+  const container=document.getElementById("withdraw");
+  container.innerHTML=withdrawData.map(row=>{
+    if(!row.valid){
+      return `
+        <div>
+          <div class="row-head">
+          <img src="${row.icon}">
+          <span><img src="https://www.svgrepo.com/show/279443/coins-money.svg"> ${row.coins}</span>
+          </div>
+          <p>₹${row.ruppee}</p>
+          <strong>₹${row.ruppee} Gift Card</strong>
+          <button disabled onclick="showNotFound()">Withdraw</button>
+        </div>
+      `;
+    } else {
+      return `
+        <div>
+          <div class="row-head">
+          <img src="${row.icon}">
+          <span><img src="https://www.svgrepo.com/show/279443/coins-money.svg"> ${row.coins}</span>
+          </div>
+          <p>₹${row.ruppee}</p>
+          <strong>₹${row.ruppee} Gift Card</strong>
+          <button onclick="selectWithdraw(${row.coins},'${row.id}',${row.ruppee})">Withdraw</button>
+        </div>
+      `;
+    }
+  }).join("");
+  document.getElementById("loader").style.display="none";
+});
+function showNotFound(){
+  document.getElementById("alertMsg").textContent="Code Not Found";
+  document.getElementById("closeBtn").style.display="inline-block";
+  document.getElementById("yesBtn").style.display="none";
+  document.getElementById("noBtn").style.display="none";
+  document.getElementById("codeBox").style.display="none";
+  document.getElementById("alertBox").style.display="flex";
+}
+function selectWithdraw(coins,id,rupee){
+  selectedCoins=coins;selectedId=id;selectedRupee=rupee;
+  document.getElementById("alertMsg").textContent="Did You Really Want to Buy?";
+  document.getElementById("yesBtn").style.display="inline-block";
+  document.getElementById("noBtn").style.display="inline-block";
+  document.getElementById("closeBtn").style.display="inline-block";
+  document.getElementById("codeBox").style.display="none";
+  document.getElementById("alertBox").style.display="flex";
+}
+document.getElementById("yesBtn").onclick=()=>{
+  document.getElementById("loader").style.display="flex";
+  fetch(DEPLOY_URL,{
+    method:"POST",
+    body:JSON.stringify({userid:uid,deduct:selectedCoins,id:selectedId,rupee:selectedRupee})
+  }).then(r=>r.json()).then(res=>{
+    document.getElementById("loader").style.display="none";
+    if(res.status==="insufficient"){
+      document.getElementById("alertMsg").textContent="Insufficient Funds";
+      document.getElementById("yesBtn").style.display="none";
+      document.getElementById("noBtn").style.display="none";
+      document.getElementById("closeBtn").style.display="inline-block";
+      document.getElementById("codeBox").style.display="none";
+    } else {
+      finalCode=res.code;
+      document.getElementById("alertMsg").textContent="Your Code:";
+      document.getElementById("codeText").textContent=finalCode;
+      document.getElementById("codeBox").style.display="block";
+      document.getElementById("yesBtn").style.display="none";
+      document.getElementById("noBtn").style.display="none";
+      document.getElementById("closeBtn").style.display="inline-block";
+    }
+  });
+};
+document.getElementById("noBtn").onclick=()=>{document.getElementById("alertBox").style.display="none";};
+document.getElementById("closeBtn").onclick=()=>{document.getElementById("alertBox").style.display="none";};
+document.getElementById("copyBtn").onclick=()=>{
+  navigator.clipboard.writeText(finalCode).then(()=>{
+    document.getElementById("copyBtn").textContent="Copied";
+  });
+};
+</script>
+<script src="auth.js"></script>
+<script src="mob-nav.js"></script>

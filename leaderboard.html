@@ -1,0 +1,127 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="loader.css">
+<link rel="stylesheet" href="mob-nav.css">
+<style>
+  .title{
+    margin: 70px 5px 10px 5px;
+  }
+  #leaderboard {
+    padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#leaderboard div {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(90deg,#f8f9ff,#eef1ff);
+  border-radius: 12px;
+  padding: 5px 8px;
+  font-family: Arial, sans-serif;
+}
+#leaderboard div img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
+#leaderboard .info {
+  display: flex;
+  flex-direction: column;
+  width: 120px;
+  overflow: hidden;
+  white-space: normal;
+  text-overflow: ellipsis;
+}
+#leaderboard .info span {
+  font-size: 14px;
+  color: #333;
+  width: 120px;
+  overflow: hidden;
+  white-space: normal;
+  text-overflow: ellipsis;
+}
+#leaderboard .info .name {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+#leaderboard .coins {
+  font-weight: bold;
+  color: #222;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+#leaderboard .coins img {
+  width: 18px;
+  height: 18px;
+}
+#leaderboard .rank {
+  font-weight: bold;
+  margin-right: 10px;
+  color: #444;
+  display: flex;
+  align-items: center;
+}
+#leaderboard .rank img {
+  width: 24px;
+  height: 24px;
+}
+</style>
+
+<div id="loader"><div class="loader"></div></div>
+<div id="header"><span>Rank</span><span id="headerCoins"></span></div>
+<div class="title"><span>Leader Board</span></div>
+<div id="leaderboard"></div>
+<div id="mob-nav"></div>
+<div class="space"></div>
+<script>
+const DEPLOY_URL="https://script.google.com/macros/s/AKfycbyFB2CW4BQR9sXirekWjKvIJ3GdmaAUMLacfHLcDbjKrdhRDZQTge6mulRYjuPBmlLSSQ/exec";
+const uid=localStorage.getItem("g_local");
+let userCoins=0;
+function showLoader(show){document.getElementById("loader").style.display=show?"flex":"none"}
+function updateCoins() {
+  document.getElementById("headerCoins").innerHTML =
+    "<img src='https://www.svgrepo.com/show/279443/coins-money.svg' style='width:20px;height:20px;vertical-align:middle;margin-right:5px;'>" +
+    "<span>" + userCoins + "</span>";
+}
+showLoader(true);
+Promise.all([
+  fetch(DEPLOY_URL+"?type=user&uid="+uid).then(r=>r.json()),
+  fetch(DEPLOY_URL+"?type=leaderboard").then(r=>r.json())
+]).then(([userData,board])=>{
+  userCoins=parseInt(userData.coins)||0;
+  updateCoins();
+  const container=document.getElementById("leaderboard");
+  board.forEach((row,i)=>{
+    let div=document.createElement("div");
+    let left=document.createElement("div");
+    left.style.display="flex";
+    left.style.alignItems="center";
+    let rank=document.createElement("span");rank.className="rank";
+    if(i===0) rank.innerHTML="<img src='https://www.svgrepo.com/show/396189/1st-place-medal.svg'>";
+    else if(i===1) rank.innerHTML="<img src='https://www.svgrepo.com/show/396188/2nd-place-medal.svg'>";
+    else if(i===2) rank.innerHTML="<img src='https://www.svgrepo.com/show/530227/coffee.svg'>";
+    else rank.textContent=i+1;
+    let img=document.createElement("img");img.src=row.picture;
+    let info=document.createElement("div");info.className="info";
+    let name=document.createElement("span");name.className="name";name.textContent=row.name;
+    info.appendChild(name);
+    left.appendChild(rank);
+    left.appendChild(img);
+    left.appendChild(info);
+    let reward=document.createElement("span");reward.className="coins";
+    reward.innerHTML="<img src='https://www.svgrepo.com/show/279443/coins-money.svg'>" + row.coins;
+    div.appendChild(left);
+    div.appendChild(reward);
+    container.appendChild(div);
+  });
+  showLoader(false);
+});
+</script>
+<script src="auth.js"></script>
+<script src="mob-nav.js"></script>

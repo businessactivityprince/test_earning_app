@@ -1,0 +1,230 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="loader.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="mob-nav.css">
+<link rel="stylesheet" href="alert.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#deddff">
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").then(() => {
+    console.log("Service Worker registered");
+  });
+}
+</script>
+<style>
+#tasks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  gap: 20px 5px;
+}
+.task > div > img {
+  width: 15px;
+}
+.task > img {
+  width: 34px;
+  border-radius: 125px;
+}
+.task > div {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
+}
+.task > div > span {
+  font-size: 15px;
+  font-weight: 500;
+}
+.task { 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 85px;
+  height: 85px;
+  padding: 10px 2px;
+  background: #EDEDFF;
+  border-radius: 12px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+.task > div > p {
+  font-size: 20px;
+  font-weight: bolder;
+}
+.quick {
+  display: flex;
+  flex-direction: row;
+  padding: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+.quick > a {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #EDEDFF;
+  padding: 6px;
+  border-radius: 12px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  width: 60px;
+  height: 60px;
+}
+.quick > a > img {
+  width: 26px;
+}
+.quick > a > span {
+  color: #101010;
+  font-weight: 500;
+  font-size: 13.4px;
+}
+#slider {
+  position: relative;
+  overflow: hidden;
+  height: 33vh;
+  margin-bottom: -8vh;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+.slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.slide.active {
+  opacity: 1;
+}
+.slide > img {
+  width: 100%;
+  height: 185px;
+  /*object-fit: cover;*/
+  border-radius: 12px;
+}
+.contentBox {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.71);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+}
+.contentBox > p {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+}
+.contentBox > button {
+  padding: 8px 18px;
+  border-radius: 10px;
+  border: none;
+  background: #2ea4fe;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.contentBox > button:hover {
+  background: #1b8ae6;
+}
+</style>
+
+<div id="loader"><div class="loader"></div></div>
+<div id="header">
+  <span>Home</span>
+  <span id="coins"></span>
+</div>
+<div id="slider"></div>
+<div class="title" style="margin: 80px 0 0 0;"><span>Quick Links</span></div>
+<div class="quick">
+  <a href="extra.html">
+    <img src="https://www.svgrepo.com/show/198796/dollar-symbol-money.svg">
+    <span>Bonus</span>
+  </a>
+  <a href="withdraw.html">
+    <img src="https://www.svgrepo.com/show/206893/locker.svg">
+    <span>Withdraw</span>
+  </a>
+  <a href="videos.html">
+    <img src="https://www.svgrepo.com/show/499744/video.svg">
+    <span>Videos</span>
+  </a>
+  <a href="leaderboard.html">
+    <img src="https://www.svgrepo.com/show/258116/chevron-rank.svg">
+    <span>Rank</span>
+  </a>
+</div>
+<div class="title"><span>Earning Tasks!</span></div>
+<div id="tasks"></div>
+<div id="mob-nav"></div>
+<div class="space"></div>
+<script>
+const DEPLOY_URL="https://script.google.com/macros/s/AKfycbwQ6HECGtVF4lNgCidkIs2OU-34p6U1aBaGJHUc9ylZgDi5WKWEv9wxIrWhGH6cEfrBgg/exec";
+let slides=[],current=0,timer;
+function showSlide(i){slides.forEach((s,idx)=>s.classList.toggle("active",idx===i));current=i;}
+function next(){showSlide((current+1)%slides.length)}
+function prev(){showSlide((current-1+slides.length)%slides.length)}
+function start(){timer=setInterval(next,4000)}
+function reset(){clearInterval(timer);start()}
+const uid=localStorage.getItem("g_local");
+Promise.all([
+  fetch(DEPLOY_URL+"?type=slider").then(r=>r.json()),
+  fetch(DEPLOY_URL+"?type=user&uid="+uid).then(r=>r.json()),
+  fetch(DEPLOY_URL+"?type=task").then(r=>r.json())
+]).then(([sliderData,userData,taskData])=>{
+  const slider=document.getElementById("slider");
+  sliderData.forEach((row,idx)=>{
+    let div=document.createElement("div");div.className="slide";
+    let img=document.createElement("img");img.src=row.image;
+    let bigDiv=document.createElement("div");bigDiv.className="contentBox";
+    let title=document.createElement("p");title.textContent=row.title;
+    let btn=document.createElement("button");btn.textContent=row.btntext;btn.onclick=()=>{window.location.href=row.url};
+    bigDiv.appendChild(title);
+    bigDiv.appendChild(btn);
+    div.appendChild(img);
+    div.appendChild(bigDiv);
+    slider.appendChild(div);
+  });
+  slides=document.querySelectorAll(".slide");showSlide(0);start();
+  document.getElementById("coins").innerHTML="<img src='https://www.svgrepo.com/show/279443/coins-money.svg'>"+ userData.coins;
+  const tasks=document.getElementById("tasks");
+  taskData.forEach(row=>{
+    let div=document.createElement("div");div.className="task";
+    let img=document.createElement("img");img.src=row.image;width="50";
+    let titleDiv=document.createElement("div"); 
+    let title=document.createElement("span");title.textContent=row.title;
+    titleDiv.appendChild(title);
+    let coinsDiv=document.createElement("div");
+    let coinsImg=document.createElement("img");coinsImg.src="https://www.svgrepo.com/show/279443/coins-money.svg";
+    let coinsText=document.createElement("p");coinsText.textContent=row.coins;
+    coinsDiv.appendChild(coinsImg);
+    coinsDiv.appendChild(coinsText);
+    div.onclick=()=>{localStorage.setItem("TASKID",row.taskid);window.location.href="task.html"};
+    div.appendChild(img);div.appendChild(titleDiv);div.appendChild(coinsDiv);
+    tasks.appendChild(div);
+  });
+  document.getElementById("loader").style.display="none";
+});
+window.addEventListener("keydown",e=>{if(e.key==="ArrowRight"){next();reset()}if(e.key==="ArrowLeft"){prev();reset()}});
+</script>
+<script src="auth.js"></script>
+<script src="mob-nav.js"></script>

@@ -1,0 +1,83 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="loader.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="mob-nav.css">
+<style>
+  .area-65 > img {
+    width: 120px;
+    margin: 10px 0;
+    text-align: center;
+    border-radius: 18px;
+  }
+  .title{
+    margin: 70px 5px 10px 5px;
+  }
+  .area-65 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .area-container{
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    padding: 10px;
+    border-radius: 12px;
+    margin: 20px 10px;
+  }
+  #taskBtn {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    color: #FFF;
+    font-weight: bold;
+    font-size: 17px;
+    letter-spacing: 1.2;
+    background: #2ea4fe;
+  }
+</style>
+<div class="title">
+  Complete Task For Coins!
+</div>
+<div id="loader"><div class="loader"></div></div>
+<div id="header" style="flex-direction: row-reverse;"><span id="headerTitle"></span><span id="headerCoins"></span></div>
+<div id="task"></div>
+<script>
+const DEPLOY_URL="https://script.google.com/macros/s/AKfycbzeq5boTDnKlFtq6P8hg1qe5nVfninDKEnN_JMXZtDuamH9UgCUGR-dWVORmJDx2rdZkw/exec";
+const tid=localStorage.getItem("TASKID");
+const uid=localStorage.getItem("g_local");
+let userCoins=localStorage.getItem("next_coin")||0;
+
+fetch(DEPLOY_URL+"?type=task&id="+tid+"&uid="+uid)
+.then(r=>r.json())
+.then(data=>{
+  document.getElementById("headerTitle").innerHTML=data.title;
+  document.getElementById("headerCoins").innerHTML="Coins: "+userCoins;
+  let html=`<div class="area-65"><img src="${data.image}"><h2>${data.title}</h2></div>`;
+  let stepsHtml="";
+  data.steps.forEach(s=>{stepsHtml+=`<div class="area-69"><span>${s}</span></div>`});
+  html+=`<div class="area-container">${stepsHtml}</div>`;
+  if(data.status==="new"){
+    html+=`<button id="taskBtn">${data.coins} Coins</button>`;
+  }else{
+    html+=`<button>${data.status}</button>`;
+  }
+  document.getElementById("task").innerHTML=html;
+  if(data.status==="new"){
+    document.getElementById("taskBtn").onclick=()=>{
+      window.open(data.url,"_blank");
+      document.getElementById("taskBtn").innerHTML="Complete";
+      document.getElementById("taskBtn").onclick=()=>{window.location.href="complete.html"};
+    };
+  }
+  document.getElementById("loader").style.display="none";
+});
+</script>
+<script src="auth.js"></script>

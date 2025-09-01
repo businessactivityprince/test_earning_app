@@ -1,0 +1,136 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="loader.css">
+<link rel="stylesheet" href="alert.css">
+<link rel="stylesheet" href="style.css">
+<style>
+  #alertBox > div > p {
+    color: #101010;
+    margin: 0 0 20px 0;
+  }
+  svg {
+    width: 64px;
+    height: 64px;
+    margin: 20px 0;
+    fill: #6366f1;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+  }
+  .con {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #FFF;
+    padding: 13px 20px;
+    border-radius: 12px;
+  }
+  .head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  input {
+    padding: 10px;
+    border: 1px dotted #373737;
+    border-radius: 8px;
+  }
+  .sub-btn {
+    padding: 10px;
+    border-radius: 125px;
+    border: none;
+    color: #FFF;
+    font-weight: bold;
+    letter-spacing: 1.2;
+    background: #2ea4fe;
+  }
+  .sub-btn:disabled {
+    background: #7bc6ff;
+  }
+  input[type="file"]::file-selector-button {
+  border: 2px solid #6c5ce7;
+  padding: 0.2em 0.4em;
+  border-radius: 0.2em;
+  background-color: #a29bfe;
+  transition: 1s;
+}
+
+input[type="file"]::-ms-browse:hover {
+  background-color: #81ecec;
+  border: 2px solid #00cec9;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+  background-color: #81ecec;
+  border: 2px solid #00cec9;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background-color: #81ecec;
+  border: 2px solid #00cec9;
+}
+</style>
+<div id="loader" style="display:none"><div class="loader"></div></div>
+<div class="container">
+  <div class="con">
+    <div class="head">
+      <svg class="upload-icon" viewBox="0 0 24 24">
+        <path d="M14 2H6C4.89 2 4 2.89 4 4V20C4 21.11 4.89 22 6 22H18C19.11 22 20 21.11 20 20V8L14 2M18 20H6V4H13V9H18V20Z"/>
+      </svg>
+      <h2>Upload Screenshot</h2>
+      <p>Attach the task screenshot</p>
+    </div>
+    <input type="file" id="screenshot" accept="image/*">
+    <button id="submitBtn" disabled class="sub-btn">Submit</button>
+  </div>
+</div>
+<div id="alertBox">
+  <div>
+    <p>Submitted Successfully</p>
+    <button id="okBtn">Okay</button>
+  </div>
+</div>
+<script>
+const DEPLOY_URL="https://script.google.com/macros/s/AKfycbzoNaCpYzxNoCgbKADjb5xU3dIld8LRd_gi_Y_YaXRXK930TQL5GddIzKFuNXRQAaPAuA/exec";
+const API_KEY="a1aab7277069e3d6fa62ab397ae5dfca";
+const uid=localStorage.getItem("g_local");
+const tid=localStorage.getItem("TASKID");
+
+const fileInput=document.getElementById("screenshot");
+const submitBtn=document.getElementById("submitBtn");
+
+fileInput.addEventListener("change",()=>{
+  submitBtn.disabled=!fileInput.files.length;
+});
+
+submitBtn.onclick=()=>{
+  const file=fileInput.files[0];
+  if(!file)return;
+  document.getElementById("loader").style.display="flex";
+  const formData=new FormData();
+  formData.append("image",file);
+  fetch("https://api.imgbb.com/1/upload?key="+API_KEY,{method:"POST",body:formData})
+    .then(r=>r.json())
+    .then(res=>{
+      const url=res.data.url;
+      fetch(DEPLOY_URL,{
+        method:"POST",
+        body:JSON.stringify({userid:uid,taskid:tid,image:url})
+      }).then(()=>{
+        document.getElementById("loader").style.display="none";
+        document.getElementById("alertBox").style.display="flex";
+      });
+    });
+};
+
+document.getElementById("okBtn").onclick=()=>{
+  localStorage.removeItem("TASKID");
+  window.location.href="index.html";
+};
+</script>

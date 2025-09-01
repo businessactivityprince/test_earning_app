@@ -1,0 +1,128 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="loader.css">
+<link rel="stylesheet" href="alert.css">
+<style>
+  .title{
+    margin: 70px 5px 10px 5px;
+  }
+  #products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 10px;
+    gap: 20px;
+  }
+  #products > div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  #products > div > img {
+    width: 148px;
+    height: 148px;
+    border-radius: 12px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  }
+  #products > div > button {
+    padding: 12px;
+    border-radius: 125px;
+    border: none;
+    color: #FFF;
+    font-weight: bold;
+    font-size: 17px;
+    letter-spacing: 1.2;
+    background: #2ea4fe;
+  }
+  #products > div > span {
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1.1;
+  }
+</style>
+<div id="loader" style="display:none"><div class="loader"></div></div>
+<div id="header"><span>Products</span><span id="headerCoins"></span></div>
+<div class="title"><span>Exchange Your Coins!</span></div>
+<div id="products"></div>
+<div id="alertBox">
+  <div>
+    <p id="alertMsg"></p>
+    <input id="keyInput" style="display:none" placeholder="Enter Key">
+    <div id="alertButtons"></div>
+  </div>
+</div>
+<script>
+const DEPLOY_URL="https://script.google.com/macros/s/AKfycbz4AGl380vbOUoGmEbYV13-eYB-NVfYr0PWyYHV560dIm4b8ZeTkYNlUbE3Gu6qFrIOIA/exec";
+const uid=localStorage.getItem("g_local");
+let userCoins=0,selectedProduct=null,productKey="";
+function showLoader(show){document.getElementById("loader").style.display=show?"flex":"none"}
+function updateCoins() {   
+  document.getElementById("headerCoins").innerHTML =     
+    "<img src='https://www.svgrepo.com/show/279443/coins-money.svg' style='width:20px;height:20px;vertical-align:middle;margin-right:5px;'>" +     
+    "<span>" + userCoins + "</span>"; 
+} 
+function showAlert(msg,buttons,input=false){
+  document.getElementById("alertMsg").textContent=msg;
+  document.getElementById("alertButtons").innerHTML="";
+  document.getElementById("keyInput").style.display=input?"block":"none";
+  buttons.forEach(b=>{
+    let btn=document.createElement("button");btn.textContent=b.text;btn.onclick=b.action;
+    document.getElementById("alertButtons").appendChild(btn);
+  });
+  document.getElementById("alertBox").style.display="flex";
+}
+function closeAlert(){document.getElementById("alertBox").style.display="none"}
+showLoader(true);
+Promise.all([
+  fetch(DEPLOY_URL+"?type=user&uid="+uid).then(r=>r.json()),
+  fetch(DEPLOY_URL+"?type=products&uid="+uid).then(r=>r.json())
+]).then(([userData,products])=>{
+  userCoins=parseInt(userData.coins)||0;
+  updateCoins();
+  const container=document.getElementById("products");
+  products.forEach(p=>{
+    let div=document.createElement("div");
+    let img=document.createElement("img");img.src=p.image;
+    let title=document.createElement("span");title.textContent=p.title+" ";
+    let coins=document.createElement("span");coins.textContent="Coins: "+p.coins+" ";
+    let btn=document.createElement("button");
+    if(p.download){
+      btn.textContent="Download";
+      btn.onclick=()=>{
+        selectedProduct=p;
+        showAlert("Enter your key",[{
+          text:"Submit",action:()=>{
+            const entered=document.getElementById("keyInput").value;
+            if(entered===p.key){window.location.href=p.url}else{alert("Invalid Key")}
+          }
+        },{text:"Close",action:closeAlert}],true);
+      };
+    } else {
+      btn.textContent="Buy Now";
+      btn.onclick=()=>{
+        selectedProduct=p;
+        showAlert("Did You Really want to buy",[{
+          text:"Yes",action:()=>{
+            showLoader(true);
+            fetch(DEPLOY_URL,{method:"POST",body:JSON.stringify({userid:uid,product:p.id})})
+              .then(r=>r.json()).then(res=>{
+                productKey=res.key;
+                showLoader(false);
+                showAlert("Your Key: "+productKey,[{
+                  text:"Copy",action:()=>{
+                    navigator.clipboard.writeText(productKey).then(()=>location.reload());
+                  }
+                }]);
+              });
+          }
+        },{text:"No",action:closeAlert}]);
+      };
+    }
+    div.appendChild(img);div.appendChild(title);div.appendChild(coins);div.appendChild(btn);
+    container.appendChild(div);
+  });
+  showLoader(false);
+});
+</script>
+<script src="auth.js"></script>

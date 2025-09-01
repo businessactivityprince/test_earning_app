@@ -1,0 +1,31 @@
+{
+  "name": "Earning App",
+  "short_name": "Earning",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#deddff",
+  "theme_color": "#deddff",
+  "orientation": "portrait",
+  "description": "Earning tasks, rewards, and bonuses app.",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/jvj24zH3/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.ibb.co/jvj24zH3/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "splash_screens": [
+    {
+      "src": "splash_screen.gif",
+      "sizes": "512x512",
+      "type": "image/gif"
+    }
+  ],
+  "id": "https://demotaxiapp.pages.dev/"
+}

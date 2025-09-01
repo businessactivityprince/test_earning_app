@@ -1,0 +1,131 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="loader.css">
+<link rel="stylesheet" href="alert.css">
+<style>
+  .title{
+    margin: 70px 5px 10px 5px;
+  }
+  #videos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 10px;
+    gap: 20px;
+  }
+  #videos > div {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  #videos > div > img {
+    width: 143px;
+    height: 80px;
+    border-radius: 12px;
+  }
+  #videos > div > div {
+    font-weight: bolder;
+    letter-spacing: 1.1;
+  }
+</style>
+<div id="loader"><div class="loader"></div></div>
+<div class="title"><span>Watch Videos & Earn</span></div>
+<div id="header"><span>Videos</span><span id="headerCoins"></span></div>
+<div id="videos"></div>
+<div id="alertBox" style="display: none;">
+  <div>
+    <p id="alertMsg">You must complete the video timer before leaving.</p>
+    <button id="closeBtn">Close</button>
+  </div>
+</div>
+<script>
+const DEPLOY_URL="https://script.google.com/macros/s/AKfycbzOzoy2iG4Qg_9_JfXfok690AdkFu4rlxjeBQ1mmpNTt-sP6fGWfmLhB4GInJkyi-yimQ/exec";
+const uid=localStorage.getItem("g_local");
+let userCoins=0,activeVideo=null,timerInterval=null,endTime=0;
+
+function showLoader(show){
+  document.getElementById("loader").style.display=show?"flex":"none"
+}
+
+function updateCoins(){   
+  document.getElementById("headerCoins").innerHTML=
+    "<img src='https://www.svgrepo.com/show/279443/coins-money.svg' style='width:20px;height:20px;vertical-align:middle;margin-right:5px;'>"+
+    "<span>"+userCoins+"</span>"; 
+} 
+
+function showAlert(){
+  document.getElementById("alertBox").style.display="flex"
+}
+
+function closeAlert(){
+  document.getElementById("alertBox").style.display="none";
+  location.reload()
+}
+
+document.getElementById("closeBtn").onclick=closeAlert;
+showLoader(true);
+
+Promise.all([
+  fetch(DEPLOY_URL+"?type=user&uid="+uid).then(r=>r.json()),
+  fetch(DEPLOY_URL+"?type=videos&uid="+uid).then(r=>r.json())
+]).then(([userData,videos])=>{
+  userCoins=parseInt(userData.coins)||0;
+  updateCoins();
+  const container=document.getElementById("videos");
+  let stored=localStorage.getItem("video_timer");
+  if(stored){
+    let data=JSON.parse(stored);
+    if(Date.now()<data.endTime){showAlert();return}
+    else{localStorage.removeItem("video_timer")}
+  }
+  videos.forEach(v=>{
+    let div=document.createElement("div");
+    let title=document.createElement("div");
+    let titleText=document.createElement("div");
+    titleText.textContent=v.title;
+    let titleCoins=document.createElement("div");
+    titleCoins.textContent=v.coins+" Coins";
+    title.appendChild(titleText);
+    title.appendChild(titleCoins);
+    let img=document.createElement("img");
+    img.src=v.image;
+    img.style.cursor="pointer";
+    if(v.status==="rewatch"){
+      let re=document.createElement("span");
+      re.textContent="Rewatch";
+      div.appendChild(title);
+      div.appendChild(img);
+      div.appendChild(re);
+    } else {
+      img.onclick=()=>{
+        window.open(v.url,"_blank");
+        activeVideo=v;
+        let duration=parseInt(v.minutes)*60*1000;
+        endTime=Date.now()+duration;
+        localStorage.setItem("video_timer",JSON.stringify({video:v.id,endTime:endTime}));
+        if(timerInterval)clearInterval(timerInterval);
+        timerInterval=setInterval(()=>{
+          if(Date.now()>=endTime){
+            clearInterval(timerInterval);
+            fetch(DEPLOY_URL,{
+              method:"POST",
+              body:JSON.stringify({userid:uid,video:v.id,coins:v.coins})
+            }).then(()=>{
+              localStorage.removeItem("video_timer");
+              location.reload()
+            });
+          }
+        },1000);
+      };
+      div.appendChild(title);
+      div.appendChild(img);
+    }
+    container.appendChild(div);
+  });
+  showLoader(false);
+});
+</script>
+<script src="auth.js"></script>

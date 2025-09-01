@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+* {
+    overflow-x: hidden;
+}
+body {
+    background: #deddff;
+    font-family: "Roboto", sans-serif;
+}
+h1 , h2 , h3, h4 , h5, h6 , p { margin: 0; padding: 0; }
+a , button , input , input::placeholder , select {
+    font-family: "Roboto", sans-serif;
+}
+#header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 15px 0;
+    align-items: center;
+    width: 100vw;
+    background: #deddff;
+    position: fixed;
+    left: 0;
+    top: 0;
+    gap: 40vw;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+#header > span {
+    font-size: 21px;
+    font-weight: 500;
+}
+#headerCoins , #coins {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
+#headerCoins > img , #coins > img {
+    width: 22px;
+}
+#headerCoins , #coins {
+    font-size: 20px;
+    padding: 5px 10px;
+    background: #EDEDFF;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 12px;
+}
+#headerCoins > span , #coins > span {
+    font-size: 18px;
+    font-weight: bolder;
+}
+.title {
+    margin: 10px 5px;
+    padding: 12px 10px;
+    background: #EDEDFF;
+    border-radius: 8px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+.title > span {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1.2;
+    margin: 0 0 0 5px;
+}
+.row-head > img {
+    width: 28px;
+}
+#withdraw {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 10px;
+    gap: 10px;
+}
+.row-head > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-weight: bold;
+}
+.row-head > span > img {
+    width: 20px;
+}
+.row-head {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+#withdraw > div {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    padding: 10px 15px;
+    border-radius: 12px;
+    width: 125px;
+    height: auto;
+    gap: 10px;
+    background: #eeedff;
+}
+#withdraw > div > p {
+    font-size: 24px;
+    margin: 10px 0;
+    font-weight: bolder;
+}
+#withdraw > div > button {
+    border: none;
+    padding: 9px;
+    border-radius: 12px;
+    color: #4796d6;
+    font-size: 17px;
+    background: #dce7fe;
+    font-weight: bold;
+}
+#withdraw > div > button:disabled {
+    background: #dce7fe;
+    color: #aed9fc;
+}

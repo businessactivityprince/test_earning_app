@@ -1,0 +1,127 @@
+<meta charset="UTF-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+<link rel="stylesheet" href="style.css"> 
+<link rel="stylesheet" href="loader.css"> 
+<link rel="stylesheet" href="mob-nav.css">
+<style>   
+  #profile {     
+    display: flex;     
+    flex-direction: column;     
+    margin: 70px 10px 10px 10px;     
+    align-items: center;   
+  }   
+  #profile > img {     
+    width: 105px;     
+    height: 105px;     
+    border-radius: 125px;     
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;   
+  } 
+  #profile > div {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    margin: 25px 10px 10px 10px;
+    border-radius: 12px;
+    background: #EDEDFF;
+    align-items: center;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    gap: 5px;
+    width: 80%;
+  }
+  .pro-hyper {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 20px;
+  }
+  .area-92 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+  }
+  .area-92 > a > img {
+    width: 56px;
+    height: 56px;
+  }
+  .area-92 > a {
+    display: flex;
+    width: 80px;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    background: #EDEDFF;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    text-decoration: none;
+  }
+  .area-92 > a > span {
+    font-size: 14.8px;
+    color: #101010;
+    font-weight: 450;
+    letter-spacing: 1.1;
+  }
+</style> 
+<div id="loader"><div class="loader"></div></div> 
+<div id="header"><span>Settings</span><span id="headerCoins" style="float:right"></span></div> 
+<div id="profile"></div> 
+<div class="pro-hyper">   
+  <div class="area-92">     
+    <a href="index.html">       
+      <img src="https://www.svgrepo.com/show/474867/home.svg">       
+      <span>Home</span>     
+    </a>
+    <a href="leaderboard.html">
+      <img src="https://www.svgrepo.com/show/381020/ranking-business-rank-rate-rating.svg">
+      <span>Rank</span>
+    </a>
+    <a href="https://t.me/asgmideabot">
+      <img src="https://www.svgrepo.com/show/247466/letter-contact.svg">
+      <span>Contact</span>
+    </a>
+  </div>   
+  <div class="area-92">   
+    <a href="products.html">
+      <img src="https://www.svgrepo.com/show/298775/store-shopper.svg">
+      <span>Store</span>
+    </a>
+    <a href="videos.html">
+      <img src="https://www.svgrepo.com/show/499744/video.svg">
+      <span>Videos</span>
+    </a>  
+    <a id="signoutBtn">       
+      <img src="https://www.svgrepo.com/show/227631/logout.svg" style="rotate: -180deg; width: 42px;">       
+      <span>Sign Out</span>     
+    </a>   
+  </div> 
+</div> 
+<div id="mob-nav"></div>
+<div class="space"></div>
+<script> 
+const DEPLOY_URL="https://script.google.com/macros/s/AKfycbwhh0KBuoq1H2mJK8WhNryxbQaR7A9M3ehFSo9wpJWnORmjtFBMiSBvJ9FZryTWizkK3A/exec"; 
+const uid=localStorage.getItem("g_local"); 
+let userCoins=0; 
+function showLoader(show){document.getElementById("loader").style.display=show?"flex":"none"} 
+function updateCoins() {   
+  document.getElementById("headerCoins").innerHTML =     
+    "<img src='https://www.svgrepo.com/show/279443/coins-money.svg' style='width:20px;height:20px;vertical-align:middle;margin-right:5px;'>" +     
+    "<span>" + userCoins + "</span>"; 
+} 
+showLoader(true); 
+fetch(DEPLOY_URL+"?type=settings&uid="+uid).then(r=>r.json()).then(d=>{   
+  userCoins=parseInt(d.coins)||0;   
+  updateCoins();   
+  const container=document.getElementById("profile");   
+  let img=document.createElement("img");img.src=d.picture;   
+  let info=document.createElement("div");info.innerHTML="<span>"+d.name+"</span><span>"+d.email+"</span>";   
+  container.appendChild(img);container.appendChild(info);   
+  showLoader(false); 
+}); 
+document.getElementById("signoutBtn").onclick=()=>{   
+  localStorage.removeItem("g_local");   
+  window.location.href="auth.html"; 
+}; 
+</script> 
+<script src="auth.js"></script>
+<script src="mob-nav.js"></script>

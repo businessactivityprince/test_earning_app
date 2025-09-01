@@ -1,0 +1,121 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="loader.css">
+<link rel="stylesheet" href="alert.css">
+<link rel="stylesheet" href="mob-nav.css">
+<style>
+#tokenList {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 5px;
+  max-width: 800px;
+  margin: auto;
+}
+
+#tokenList > div {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+}
+
+#tokenList > div:hover {
+  transform: translateY(-5px);
+}
+
+#tokenList img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+#tokenList span {
+  font-size: 16px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#tokenList span:first-of-type {
+  font-weight: bold;
+  color: #4caf50;
+}
+
+#tokenList span:last-of-type {
+  margin-left: auto;
+  font-weight: 500;
+  color: #101010;
+}
+.title{
+  margin: 70px 5px 10px 5px;
+}
+#tokenList > div > span > img {
+  width: 22px;
+  height: 22px;
+}
+.title{
+    margin: 70px 5px 10px 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+  }
+  .title > a {
+    text-decoration: none;
+    width: 50vw;
+    text-align: center;
+    text-transform: uppercase;
+    border-radius: 0 8px 8px 0;
+    letter-spacing: 1.1;
+    padding: 12px;
+    font-weight: bolder;
+  }
+</style>
+<div id="loader"><div class="loader"></div></div>
+<div id="header"><span>Tokens</span><span id="headerCoins"></span></div>
+<div class="title">
+  <a href="transition.html">Transactions</a>
+  <a href="tokens.html" style="background: #2ea4fe; color: #FFF;">Tokens</a>
+</div>
+<div id="tokenList"></div>
+<div id="mob-nav"></div>
+<div class="space"></div>
+<script>
+const DEPLOY_URL="https://script.google.com/macros/s/AKfycbxiL9dZ-r9CjouvCNRa1m87kxtensvbBOHcraZhJmDB5_Nv4kYJbxl9-dvMS81sJgW7Lw/exec";
+const uid=localStorage.getItem("g_local");
+let userCoins=0;
+function showLoader(show){document.getElementById("loader").style.display=show?"flex":"none"}
+function updateCoins(){   
+  document.getElementById("headerCoins").innerHTML=
+    "<img src='https://www.svgrepo.com/show/279443/coins-money.svg' style='width:20px;height:20px;vertical-align:middle;margin-right:5px;'>"+
+    "<span>"+userCoins+"</span>"; 
+} 
+showLoader(true);
+Promise.all([
+  fetch(DEPLOY_URL+"?type=user&uid="+uid).then(r=>r.json()),
+  fetch(DEPLOY_URL+"?type=token&uid="+uid).then(r=>r.json())
+]).then(([userData,tokenData])=>{
+  userCoins=parseInt(userData.coins)||0;
+  updateCoins();
+  const container=document.getElementById("tokenList");
+  tokenData.forEach(row=>{
+    let div=document.createElement("div");
+    let img=document.createElement("img");img.src=row.image;
+    let name=document.createElement("span");name.textContent=" Task: "+row.task+" ";
+    let coins=document.createElement("span");coins.innerHTML="<img src='https://www.svgrepo.com/show/279443/coins-money.svg'>"+row.coins+" ";
+    div.appendChild(img);div.appendChild(name);div.appendChild(coins);
+    container.appendChild(div);
+  });
+  showLoader(false);
+});
+</script>
+<script src="auth.js"></script>
+<script src="mob-nav.js"></script>
