@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.test.earningapp",
+      "sha256_cert_fingerprints": [
+        "02:BB:5F:DE:45:5E:00:74:49:E7:4D:EC:2C:29:A9:B6:40:AE:18:1C:72:0E:5C:E8:6A:3D:F8:CD:B9:A8:79:24"
+      ]
+    }
+  }
+]
